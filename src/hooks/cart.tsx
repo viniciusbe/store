@@ -30,23 +30,82 @@ const CartProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     async function loadProducts(): Promise<void> {
-      // TODO LOAD ITEMS FROM ASYNC STORAGE
+      const storagedProducts = await AsyncStorage.getItem('@GoBarber/cart');
+
+      storagedProducts && setProducts(JSON.parse(storagedProducts));
     }
 
     loadProducts();
   }, []);
 
-  const addToCart = useCallback(async product => {
-    // TODO ADD A NEW ITEM TO THE CART
-  }, []);
+  const increment = useCallback(
+    async id => {
+      const productsUpdated = products.map(product => {
+        if (product.id !== id) return product;
 
-  const increment = useCallback(async id => {
-    // TODO INCREMENTS A PRODUCT QUANTITY IN THE CART
-  }, []);
+        return {
+          ...product,
+          quantity: product.quantity + 1,
+        };
+      });
 
-  const decrement = useCallback(async id => {
-    // TODO DECREMENTS A PRODUCT QUANTITY IN THE CART
-  }, []);
+      await AsyncStorage.setItem(
+        '@GoBarber/cart',
+        JSON.stringify(productsUpdated),
+      );
+
+      setProducts(productsUpdated);
+    },
+    [products],
+  );
+
+  const addToCart = useCallback(
+    async product => {
+      const productExistent = products.find(
+        productX => product.id === productX.id,
+      );
+
+      if (productExistent) {
+        increment(productExistent.id);
+        return;
+      }
+
+      const createProduct: Product = {
+        ...product,
+        quantity: 1,
+      };
+
+      await AsyncStorage.setItem(
+        '@GoBarber/cart',
+        JSON.stringify([...products, createProduct]),
+      );
+
+      setProducts([...products, createProduct]);
+    },
+    [increment, products],
+  );
+
+  const decrement = useCallback(
+    async id => {
+      const productsUpdated = products.flatMap(product => {
+        if (product.id !== id) return product;
+
+        const { quantity } = product;
+
+        if (quantity === 1) return [];
+
+        return { ...product, quantity: product.quantity - 1 };
+      });
+
+      await AsyncStorage.setItem(
+        '@GoBarber/cart',
+        JSON.stringify(productsUpdated),
+      );
+
+      setProducts(productsUpdated);
+    },
+    [products],
+  );
 
   const value = React.useMemo(
     () => ({ addToCart, increment, decrement, products }),

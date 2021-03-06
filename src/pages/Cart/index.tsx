@@ -71,13 +71,13 @@ const Cart: React.FC = () => {
                   testID={`increment-${item.id}`}
                   onPress={() => increment(item.id)}
                 >
-                  <FeatherIcon name="plus" color="#E83F5B" size={16} />
+                  <FeatherIcon name="plus" color="#e94560" size={16} />
                 </ActionButton>
                 <ActionButton
                   testID={`decrement-${item.id}`}
                   onPress={() => decrement(item.id)}
                 >
-                  <FeatherIcon name="minus" color="#E83F5B" size={16} />
+                  <FeatherIcon name="minus" color="#e94560" size={16} />
                 </ActionButton>
               </ActionContainer>
             </Product>
